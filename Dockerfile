@@ -41,11 +41,11 @@ RUN rm /etc/supervisor/supervisord.conf
 #PASS=`pwgen -c -n -1 10`
 #PASS=ubuntu
 #echo "User: ubuntu Pass: $PASS"
-#RUN useradd --create-home --shell /bin/bash --user-group --groups adm,sudo ubuntu
+RUN useradd --create-home --shell /bin/bash --user-group --groups adm,sudo ubuntu
 
 # create an ubuntu user who cannot sudo
-RUN useradd --create-home --shell /bin/bash --user-group ubuntu
-RUN echo "ubuntu:badpassword" | chpasswd
+#RUN useradd --create-home --shell /bin/bash --user-group ubuntu
+#RUN echo "ubuntu:badpassword" | chpasswd
 
 ADD startup.sh /
 ADD supervisord.conf.xorg /etc/supervisor/supervisord.conf
@@ -63,7 +63,29 @@ WORKDIR /
 ############ being Eclipse stuff ###############
 # java install
 RUN add-apt-repository ppa:webupd8team/java
-RUN apt-get update
+#RUN apt-get update
+COPY copyables /
+ADD https://dl.google.com/linux/linux_signing_key.pub /tmp/
+
+RUN apt-key add /tmp/linux_signing_key.pub \
+	&& apt-get update \
+	&& apt-get install -y \
+	google-chrome-stable \
+	fonts-takao \
+	pulseaudio \
+	supervisor \
+	x11vnc \
+	fonts-droid \
+	ttf-wqy-zenhei \
+	ttf-wqy-microhei \
+	fonts-arphic-ukai \
+	fonts-arphic-uming \
+	fcitx \
+	fcitx-googlepinyin \
+	im-config \
+	&& apt-get clean
+
+
 # say yes to the oracle license agreement
 RUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
 RUN echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections
